@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#7c9a84">
+  <meta name="description" content="Aplikasi pencatatan pemasukan dan pengeluaran kas organisasi santri">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kas Santri">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Kas Santri - Status Pembayaran</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo" id="logoText">Kas <span>Santri</span></a>
+      <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">&#9776;</button>
+      <nav id="mainNav">
+        <a href="index.html" class="active">Beranda</a>
+        <a href="login.html">Login Pengurus</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1 class="page-title">Status Pembayaran Kas</h1>
+      <p class="page-subtitle">Pilih bulan dan tahun untuk melihat siapa yang sudah dan belum bayar</p>
+
+      <div class="card">
+        <div class="month-selector">
+          <label for="selectBulan">Bulan:</label>
+          <select id="selectBulan"></select>
+          <label for="selectTahun">Tahun:</label>
+          <select id="selectTahun"></select>
+          <button class="btn btn-primary" id="btnTampilkan">Tampilkan</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Santri</th>
+                <th>Status</th>
+                <th>Tanggal Bayar</th>
+              </tr>
+            </thead>
+            <tbody id="tabelSantri">
+              <tr>
+                <td colspan="4" class="loading">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="statsContainer" style="display: none;">
+        <div class="stat-card success">
+          <div class="stat-label">Sudah Bayar</div>
+          <div class="stat-value" id="statSudah">0</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Belum Bayar</div>
+          <div class="stat-value" id="statBelum">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Santri</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p id="footerText">&copy; 2025 Kas Santri</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/pwa.js"></script>
+  <script>
+    const namaBulan = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    const selectBulan = document.getElementById('selectBulan');
+    const selectTahun = document.getElementById('selectTahun');
+    const btnTampilkan = document.getElementById('btnTampilkan');
+    const tabelSantri = document.getElementById('tabelSantri');
+    const statsContainer = document.getElementById('statsContainer');
+
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    namaBulan.forEach((bulan, index) => {
+      const option = document.createElement('option');
+      option.value = index + 1;
+      option.textContent = bulan;
+      if (index + 1 === currentMonth) option.selected = true;
+      selectBulan.appendChild(option);
+    });
+
+    for (let year = currentYear - 2; year <= currentYear + 1; year++) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      if (year === currentYear) option.selected = true;
+      selectTahun.appendChild(option);
+    }
+
+    async function loadNamaOrganisasi() {
+      try {
+        const setting = await getSetting();
+        if (setting.nama_organisasi) {
+          document.getElementById('logoText').innerHTML = setting.nama_organisasi.split(' ')[0] + ' <span>' + setting.nama_organisasi.split(' ').slice(1).join(' ') + '</span>';
+          document.title = setting.nama_organisasi + ' - Status Pembayaran';
+          document.getElementById('footerText').textContent = `&copy; ${currentYear} ${setting.nama_organisasi}`;
+        }
+      } catch (e) {
+        console.log('Gagal load nama organisasi');
+      }
+    }
+
+    async function loadData() {
+      const bulan = parseInt(selectBulan.value);
+      const tahun = parseInt(selectTahun.value);
+
+      tabelSantri.innerHTML = '<tr><td colspan="4" class="loading">Memuat data...</td></tr>';
+      statsContainer.style.display = 'none';
+
+      try {
+        const [santriList, pembayaranList] = await Promise.all([
+          getSantri(),
+          getPembayaran(bulan, tahun)
+        ]);
+
+        if (santriList.length === 0) {
+          tabelSantri.innerHTML = '<tr><td colspan="4" class="empty-state">Belum ada data santri</td></tr>';
+          return;
+        }
+
+        const pembayaranMap = {};
+        pembayaranList.forEach(p => {
+          pembayaranMap[p.santri_id] = p;
+        });
+
+        let html = '';
+        let sudahBayar = 0;
+        let belumBayar = 0;
+
+        santriList.forEach((santri, index) => {
+          const pembayaran = pembayaranMap[santri.id];
+          if (pembayaran) {
+            sudahBayar++;
+            html += `
+              <tr>
+                <td data-label="No">${index + 1}</td>
+                <td data-label="Nama">${santri.nama}</td>
+                <td data-label="Status"><span class="badge badge-success">Sudah Bayar</span></td>
+                <td data-label="Tanggal">${formatDate(pembayaran.tanggal_bayar)}</td>
+              </tr>
+            `;
+          } else {
+            belumBayar++;
+            html += `
+              <tr>
+                <td data-label="No">${index + 1}</td>
+                <td data-label="Nama">${santri.nama}</td>
+                <td data-label="Status"><span class="badge badge-danger">Belum Bayar</span></td>
+                <td data-label="Tanggal">-</td>
+              </tr>
+            `;
+          }
+        });
+
+        tabelSantri.innerHTML = html;
+        statsContainer.style.display = 'grid';
+        document.getElementById('statSudah').textContent = sudahBayar;
+        document.getElementById('statBelum').textContent = belumBayar;
+        document.getElementById('statTotal').textContent = santriList.length;
+
+      } catch (error) {
+        console.error('Error loading data:', error);
+        tabelSantri.innerHTML = '<tr><td colspan="4" class="empty-state">Gagal memuat data. Periksa konfigurasi Supabase.</td></tr>';
+      }
+    }
+
+    btnTampilkan.addEventListener('click', loadData);
+    loadNamaOrganisasi();
+    loadData();
+
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      document.getElementById('mainNav').classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('header')) {
+        document.getElementById('mainNav').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>

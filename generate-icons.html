@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate PWA Icons</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      text-align: center;
+    }
+    button {
+      background: #7c9a84;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { opacity: 0.9; }
+    .preview { margin: 1rem 0; }
+    img { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>Generate PWA Icons</h1>
+  <p>Buka halaman ini di browser, klik tombol untuk generate icons PNG</p>
+  
+  <div class="preview">
+    <img id="preview192" alt="192x192">
+    <img id="preview512" alt="512x512">
+  </div>
+  
+  <button onclick="generateIcons()">Generate & Download Icons</button>
+
+  <script>
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <rect width="512" height="512" rx="80" fill="#7c9a84"/>
+        <g fill="none" stroke="#ffffff" stroke-width="24">
+          <rect x="120" y="140" width="272" height="232" rx="16"/>
+          <line x1="120" y1="200" x2="392" y2="200"/>
+          <line x1="256" y1="200" x2="256" y2="372"/>
+        </g>
+        <circle cx="188" cy="170" r="8" fill="#ffffff"/>
+        <circle cx="324" cy="170" r="8" fill="#ffffff"/>
+        <g fill="#ffffff" opacity="0.7">
+          <rect x="160" y="240" width="72" height="12" rx="6"/>
+          <rect x="280" y="240" width="72" height="12" rx="6"/>
+          <rect x="160" y="280" width="72" height="12" rx="6"/>
+          <rect x="280" y="280" width="72" height="12" rx="6"/>
+          <rect x="160" y="320" width="72" height="12" rx="6"/>
+          <rect x="280" y="320" width="72" height="12" rx="6"/>
+        </g>
+      </svg>
+    `;
+
+    function generatePNG(size, callback) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      const img = new Image();
+      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(svgBlob);
+      
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, size, size);
+        URL.revokeObjectURL(url);
+        callback(canvas);
+      };
+      img.src = url;
+    }
+
+    function generateIcons() {
+      generatePNG(192, (canvas192) => {
+        canvas192.toBlob((blob) => {
+          const link = document.createElement('a');
+          link.download = 'icon-192.png';
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          
+          document.getElementById('preview192').src = URL.createObjectURL(blob);
+        });
+      });
+
+      generatePNG(512, (canvas512) => {
+        setTimeout(() => {
+          canvas512.toBlob((blob) => {
+            const link = document.createElement('a');
+            link.download = 'icon-512.png';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            
+            document.getElementById('preview512').src = URL.createObjectURL(blob);
+          });
+        }, 200);
+      });
+    }
+  </script>
+</body>
+</html>

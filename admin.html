@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#7c9a84">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Dashboard Pengurus - Kas Santri</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="admin.html" class="logo" id="logoText">Kas <span>Santri</span></a>
+      <button class="mobile-menu-btn" id="menuBtn" aria-label="Menu">&#9776;</button>
+      <nav id="mainNav">
+        <a href="index.html">Lihat Publik</a>
+        <a href="#" id="btnLogout">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1 class="page-title">Dashboard Pengurus</h1>
+      <p class="page-subtitle">Kelola data kas santri dan laporan keuangan</p>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="dashboard">Dashboard</button>
+        <button class="tab" data-tab="santri">Kelola Santri</button>
+        <button class="tab" data-tab="pembayaran">Pembayaran</button>
+        <button class="tab" data-tab="pengeluaran">Pengeluaran</button>
+        <button class="tab" data-tab="laporan">Laporan</button>
+        <button class="tab" data-tab="pengaturan">Pengaturan</button>
+      </div>
+
+      <div class="tab-content active" id="tab-dashboard">
+        <div class="stats-grid" id="dashboardStats">
+          <div class="stat-card success">
+            <div class="stat-label">Total Pemasukan Bulan Ini</div>
+            <div class="stat-value" id="statPemasukan">Rp 0</div>
+          </div>
+          <div class="stat-card danger">
+            <div class="stat-label">Total Pengeluaran Bulan Ini</div>
+            <div class="stat-value" id="statPengeluaran">Rp 0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Sisa Kas</div>
+            <div class="stat-value" id="statSisa">Rp 0</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">Belum Bayar Bulan Ini</div>
+            <div class="stat-value" id="statBelumBayar">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Santri Belum Bayar Bulan Ini</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Keterangan</th>
+                </tr>
+              </thead>
+              <tbody id="tabelBelumBayar">
+                <tr><td colspan="3" class="loading">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-santri">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Daftar Santri</h3>
+            <button class="btn btn-primary" id="btnTambahSantri">+ Tambah Santri</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Tanggal Masuk</th>
+                  <th>Keterangan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabelSantri">
+                <tr><td colspan="5" class="loading">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-pembayaran">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Konfirmasi Pembayaran</h3>
+            <button class="btn btn-primary" id="btnTambahPembayaran">+ Input Pembayaran</button>
+          </div>
+          <div class="month-selector">
+            <label for="filterBulan">Bulan:</label>
+            <select id="filterBulan"></select>
+            <label for="filterTahun">Tahun:</label>
+            <select id="filterTahun"></select>
+            <button class="btn btn-secondary" id="btnFilterPembayaran">Filter</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Bulan/Tahun</th>
+                  <th>Jumlah</th>
+                  <th>Tanggal Bayar</th>
+                  <th>Bukti</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabelPembayaran">
+                <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-pengeluaran">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Data Pengeluaran</h3>
+            <button class="btn btn-primary" id="btnTambahPengeluaran">+ Input Pengeluaran</button>
+          </div>
+          <div class="month-selector">
+            <label for="filterPengeluaranBulan">Bulan:</label>
+            <select id="filterPengeluaranBulan"></select>
+            <label for="filterPengeluaranTahun">Tahun:</label>
+            <select id="filterPengeluaranTahun"></select>
+            <button class="btn btn-secondary" id="btnFilterPengeluaran">Filter</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kategori</th>
+                  <th>Jumlah</th>
+                  <th>Tanggal</th>
+                  <th>Bukti</th>
+                  <th>Keterangan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabelPengeluaran">
+                <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-laporan">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Laporan Keuangan</h3>
+            <div class="btn-group">
+              <button class="btn btn-secondary" id="exportPembayaran">Export Pembayaran</button>
+              <button class="btn btn-secondary" id="exportPengeluaran">Export Pengeluaran</button>
+            </div>
+          </div>
+          <div class="month-selector">
+            <label for="laporanBulan">Bulan:</label>
+            <select id="laporanBulan"></select>
+            <label for="laporanTahun">Tahun:</label>
+            <select id="laporanTahun"></select>
+            <button class="btn btn-primary" id="btnTampilkanLaporan">Tampilkan</button>
+          </div>
+          <div id="laporanContent"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-pengaturan">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Pengaturan Aplikasi</h3>
+          </div>
+          <form id="formPengaturan">
+            <div class="form-group">
+              <label class="form-label">Nama Organisasi</label>
+              <input type="text" id="settingNamaOrganisasi" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jumlah Kas Per Bulan (Rp)</label>
+              <input type="number" id="settingJumlahKas" class="form-input" min="0" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modalSantri">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalSantriTitle">Tambah Santri</h3>
+        <button class="modal-close" id="closeModalSantri">&times;</button>
+      </div>
+      <form id="formSantri">
+        <input type="hidden" id="santriId">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input type="text" id="santriNama" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Masuk</label>
+          <input type="date" id="santriTanggalMasuk" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan (opsional)</label>
+          <textarea id="santriKeterangan" class="form-textarea"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalPembayaran">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Input Pembayaran</h3>
+        <button class="modal-close" id="closeModalPembayaran">&times;</button>
+      </div>
+      <form id="formPembayaran">
+        <div class="form-group">
+          <label class="form-label">Nama Santri</label>
+          <select id="pembayaranSantri" class="form-select" required>
+            <option value="">Pilih santri...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bulan</label>
+          <select id="pembayaranBulan" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tahun</label>
+          <input type="number" id="pembayaranTahun" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jumlah (Rp)</label>
+          <input type="number" id="pembayaranJumlah" class="form-input" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Bayar</label>
+          <input type="date" id="pembayaranTanggal" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bukti Pembayaran (gambar)</label>
+          <input type="file" id="pembayaranBukti" class="form-input" accept="image/*" required>
+          <small style="color: var(--text-light);">Wajib upload bukti pembayaran</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan (opsional)</label>
+          <textarea id="pembayaranKeterangan" class="form-textarea"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalPengeluaran">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Input Pengeluaran</h3>
+        <button class="modal-close" id="closeModalPengeluaran">&times;</button>
+      </div>
+      <form id="formPengeluaran">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select id="pengeluaranKategori" class="form-select" required>
+            <option value="">Pilih kategori...</option>
+            <option value="Kebutuhan Pondok">Kebutuhan Pondok</option>
+            <option value="Listrik & Air">Listrik & Air</option>
+            <option value="Makanan">Makanan</option>
+            <option value="Perlengkapan">Perlengkapan</option>
+            <option value="Perbaikan">Perbaikan</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jumlah (Rp)</label>
+          <input type="number" id="pengeluaranJumlah" class="form-input" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal</label>
+          <input type="date" id="pengeluaranTanggal" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bukti Pengeluaran (gambar)</label>
+          <input type="file" id="pengeluaranBukti" class="form-input" accept="image/*" required>
+          <small style="color: var(--text-light);">Wajib upload bukti pengeluaran</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan</label>
+          <textarea id="pengeluaranKeterangan" class="form-textarea" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalBukti">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Bukti Transaksi</h3>
+        <button class="modal-close" id="closeModalBukti">&times;</button>
+      </div>
+      <div id="buktiContent" style="text-align: center;">
+        <img id="buktiImage" src="" alt="Bukti" class="image-preview">
+        <p id="buktiInfo" style="margin-top: 1rem; color: var(--text-light);"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p id="footerText">&copy; 2025 Kas Santri</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/pwa.js"></script>
+</body>
+</html>

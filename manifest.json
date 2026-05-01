@@ -1,0 +1,25 @@
+{
+  "name": "Kas Santri - Pencatatan Kas Organisasi",
+  "short_name": "Kas Santri",
+  "description": "Aplikasi pencatatan pemasukan dan pengeluaran kas organisasi santri",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#7c9a84",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
