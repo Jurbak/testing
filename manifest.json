@@ -2,7 +2,7 @@
   "name": "Kas Santri - Pencatatan Kas Organisasi",
   "short_name": "Kas Santri",
   "description": "Aplikasi pencatatan pemasukan dan pengeluaran kas organisasi santri",
-  "start_url": "./",
+  "start_url": "/testing",
   "display": "standalone",
   "background_color": "#f8f9fa",
   "theme_color": "#7c9a84",
