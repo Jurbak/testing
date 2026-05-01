@@ -2,7 +2,7 @@
   // Only register SW if served via HTTP/HTTPS (not file://)
   if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').then((registration) => {
+      navigator.serviceWorker.register('sw.js').then((registration) => {
         console.log('Service Worker registered');
 
         registration.addEventListener('updatefound', () => {

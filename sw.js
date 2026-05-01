@@ -1,14 +1,18 @@
 const CACHE_NAME = 'kas-santri-v1';
+
+// Get base path from current location (handles subdirectory repos)
+const basePath = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1);
+
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/login.html',
-  '/admin.html',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/admin.js',
-  '/js/pwa.js',
-  '/manifest.json',
+  basePath,
+  basePath + 'index.html',
+  basePath + 'login.html',
+  basePath + 'admin.html',
+  basePath + 'css/style.css',
+  basePath + 'js/app.js',
+  basePath + 'js/admin.js',
+  basePath + 'js/pwa.js',
+  basePath + 'manifest.json',
 ];
 
 // Install event - cache static assets only
